@@ -1,17 +1,19 @@
+import os
 import discord
-from discord.ext import commands
+from discord_slash import SlashCommand, SlashContext
 
 intents = discord.Intents.default()
 intents.messages = True
 
-bot = commands.Bot(command_prefix='/', intents=intents)
+bot = discord.Client(intents=intents)
+slash = SlashCommand(bot, sync_commands=True)
 
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name}')
 
-@bot.slash_command()
-async def recentmodsend(ctx):
+@slash.slash(name="recentmodsend", description="Displays the last 5 messages with pictures from a specific channel")
+async def recentmodsend(ctx: SlashContext):
     channel_id = 1245824371394613439
     channel = bot.get_channel(channel_id)
     
@@ -25,4 +27,4 @@ async def recentmodsend(ctx):
     
     await ctx.send(embed=embed)
 
-bot.run('DISCORD_TOKEN')
+bot.run(os.environ.get('DISCORD_TOKEN'))
