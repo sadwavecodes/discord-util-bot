@@ -1,37 +1,28 @@
-import os
 import discord
 from discord.ext import commands
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 
-# Discord bot token
-TOKEN = os.getenv('DISCORD_TOKEN')
+intents = discord.Intents.default()
+intents.messages = True
 
-# Google Sheets credentials
-SCOPE = ['https://spreadsheets.google.com/feeds',
-         'https://www.googleapis.com/auth/drive']
-SPREADSHEET_KEY = '1_MGZdYGTN-VzaBrCR-_W-fW8Jk08Pa3QEVTyiPgfr4E'
-SHEET_NAME = 'Sheet1'
+bot = commands.Bot(command_prefix='/', intents=intents)
 
-# Discord channel ID
-CHANNEL_ID = 991823635037814855
-
-# Initialize bot
-bot = commands.Bot(command_prefix='!')
-
-# Function to handle changes in the Google Sheet
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user}')
+    print(f'Logged in as {bot.user.name}')
 
-@bot.event
-async def on_message_edit(before, after):
-    if after.author == bot.user:
-        return
-    if after.channel.id == CHANNEL_ID:
-        cell_value = after.content
-        channel = bot.get_channel(CHANNEL_ID)
-        await channel.send(f'Edited entry in row B: {cell_value}')
+@bot.slash_command()
+async def recentmodsend(ctx):
+    channel_id = 1245824371394613439
+    channel = bot.get_channel(channel_id)
+    
+    recent_messages = await channel.history(limit=5).flatten()
+    embed = discord.Embed(title="Recent Messages", color=discord.Color.blue())
+    
+    for message in recent_messages:
+        embed.add_field(name=f"Message by {message.author}", value=message.content, inline=False)
+        if message.attachments:
+            embed.set_image(url=message.attachments[0].url)
+    
+    await ctx.send(embed=embed)
 
-# Run the bot
-bot.run(TOKEN)
+bot.run('DISCORD_TOKEN')
