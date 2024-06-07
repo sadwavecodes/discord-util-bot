@@ -29,10 +29,7 @@ async def remind(ctx, *, reminder: str):
         reminders[user_id] = {}
 
     reminders[user_id][reminder_id] = reminder
-    reminder_message = (
-        f'{ctx.author.mention}, your reminder has been set.\n'
-        f'Reminder ID: `{reminder_id}` (Click to copy)'
-    )
+    reminder_message = f'{ctx.author.mention}, your reminder has been set. Your Reminder ID is: `{reminder_id}`'
     await ctx.send(reminder_message)
 
 @bot.command(name='cancelreminder', help='Cancel a reminder by ID. Usage: !cancelreminder <reminder_id>')
