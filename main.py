@@ -1,40 +1,37 @@
-from discord.ext import commands  # import commands extension
-import discord
 import os
-import gd
+import discord
+from discord.ext import commands
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
-bot = commands.Bot(command_prefix="!")
-client = gd.Client()
+# Discord bot token
+TOKEN = os.getenv('DISCORD_TOKEN')
+
+# Google Sheets credentials
+SCOPE = ['https://spreadsheets.google.com/feeds',
+         'https://www.googleapis.com/auth/drive']
+SPREADSHEET_KEY = '1_MGZdYGTN-VzaBrCR-_W-fW8Jk08Pa3QEVTyiPgfr4E'
+SHEET_NAME = 'Sheet1'
+
+# Discord channel ID
+CHANNEL_ID = 991823635037814855
+
+# Initialize bot
+bot = commands.Bot(command_prefix='!')
+
+# Function to handle changes in the Google Sheet
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user}')
 
 @bot.event
-async def on_ready() -> None:
-    bot.client = client  # attach gd.Client to commands.Bot
+async def on_message_edit(before, after):
+    if after.author == bot.user:
+        return
+    if after.channel.id == CHANNEL_ID:
+        cell_value = after.content
+        channel = bot.get_channel(CHANNEL_ID)
+        await channel.send(f'Edited entry in row B: {cell_value}')
 
-    activity = discord.Activity(type=discord.ActivityType.playing, name="Geometry Dash")
-
-    await bot.change_presence(activity=activity, status=discord.Status.online)
-
-@bot.command(name="daily")
-async def get_daily(ctx: commands.Context) -> None:
-    try:
-        daily = await bot.client.get_daily()
-
-    except gd.MissingAccess:
-        # couldn"t fetch a daily level
-        return await ctx.send(
-            embed=discord.Embed(
-                description="Failed to get a daily level.",
-                title="Error Occured", color=0xde3e35)
-        )
-
-    embed = (
-        discord.Embed(color=0x7289da).set_author(name="Current Daily")
-        .add_field(name="Name", value=daily.name)
-        .add_field(name="Difficulty", value=f"{daily.stars} ({daily.difficulty.title})")
-        .add_field(name="ID", value=f"{daily.id}")
-        .set_footer(text=f"Creator: {daily.creator.name}")
-    )
-
-    await ctx.send(embed=embed)
-
-bot.run(os.getenv("DISCORD_TOKEN"))
+# Run the bot
+bot.run(TOKEN)
