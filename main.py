@@ -3,7 +3,7 @@ import discord
 import os
 import gd
 
-bot = commands.Bot(command_prefix="> ")
+bot = commands.Bot(command_prefix="!")
 client = gd.Client()
 
 @bot.event
