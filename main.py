@@ -12,7 +12,7 @@ async def on_ready():
     print(f'Logged in as {bot.user.name}')
 
 @bot.command()
-async def recentmodsend(ctx):
+async def sends(ctx):
     channel_id = 1245824371394613439
     channel = bot.get_channel(channel_id)
     
@@ -20,7 +20,7 @@ async def recentmodsend(ctx):
     embed = discord.Embed(title="Recent Messages", color=discord.Color.blue())
     
     for message in recent_messages:
-        embed.add_field(name=f"Message by {message.author}", value=message.content, inline=False)
+        embed.add_field(name=f"Message by {message.author}", value="No message content available", inline=False)
         if message.attachments:
             embed.set_image(url=message.attachments[0].url)
     
