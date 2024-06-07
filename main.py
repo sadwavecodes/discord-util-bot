@@ -2,64 +2,33 @@ import os
 import discord
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
-from discord_slash.utils import manage_components
+from discord_slash.utils.manage_components import create_button, create_actionrow
 from discord_slash.model import ButtonStyle
-from discord_components import DiscordComponents, Button, ButtonStyle
 
-TOKEN = os.getenv('DISCORD_TOKEN')
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+slash = SlashCommand(bot, sync_commands=True)
 
-bot = commands.Bot(command_prefix='!')
-slash = SlashCommand(bot)
-DiscordComponents(bot)
+@slash.slash(name="reqbutton", description="Create a button to submit level information")
+async def reqbutton(ctx: SlashContext):
+    # Creating button
+    button = create_button(style=ButtonStyle.blue, label="Submit Level Information", custom_id="submit_info")
 
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user}')
+    # Creating action row and sending the button
+    action_row = create_actionrow(button)
+    await ctx.send("Click the button to submit level information:", components=[action_row])
 
-@slash.slash(name="button", description="Creates a button")
-async def button(ctx: SlashContext):
-    # Create a button
-    button = Button(style=ButtonStyle.green, label="Open Modal", custom_id="open_modal")
+@slash.slash(name="channelselect", description="Select a channel to send level information")
+async def channelselect(ctx: SlashContext):
+    # Get list of all channels
+    channels = [channel.name for channel in ctx.guild.channels]
 
-    # Send a message with the button
-    await ctx.send(content="Click the button to open the modal", components=[button])
-
-@bot.event
-async def on_button_click(interaction):
-    if interaction.custom_id == "open_modal":
-        # Open a modal
-        action_row = manage_components.create_actionrow(
-            manage_components.create_button(
-                style=ButtonStyle.green, label="Submit", custom_id="submit_button"
-            )
-        )
-        await interaction.send(content="Please fill out the form", components=[action_row])
+    # Send list of channels
+    await ctx.send("Select the channel to send level information:", options=channels)
 
 @bot.event
-async def on_dropdown(interaction):
-    if interaction.custom_id == "channel_dropdown":
-        channel_id = interaction.values[0]  # Get the selected channel ID
-        channel = bot.get_channel(int(channel_id))
-        # Save the selected channel for embedding level information
+async def on_component(ctx):
+    # Check if the button was clicked
+    if ctx.component_id == "submit_info":
+        await ctx.send("Button clicked!")
 
-@slash.slash(name="channelset", description="Set the channel for embedding level information")
-async def channelset(ctx: SlashContext):
-    # Get all the channels in the guild
-    channels = ctx.guild.channels
-    # Create a dropdown with channel options
-    dropdown = manage_components.create_select(
-        options=[
-            manage_components.create_select_option(channel.name, str(channel.id))
-            for channel in channels
-        ],
-        placeholder="Select a channel",
-        custom_id="channel_dropdown",
-    )
-    await ctx.send(content="Select a channel", components=[manage_components.create_actionrow(dropdown)])
-
-@bot.event
-async def on_select_option(interaction):
-    await interaction.respond(type=7)
-
-if __name__ == "__main__":
-    bot.run(TOKEN)
+bot.run(os.getenv("DISCORD_TOKEN"))
