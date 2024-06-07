@@ -1,29 +1,60 @@
 import os
 import discord
 from discord.ext import commands
+from discord_components import DiscordComponents, Button, ButtonStyle
 
 intents = discord.Intents.default()
 intents.messages = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
+DiscordComponents(bot)
 
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name}')
 
 @bot.command()
-async def sends(ctx):
+async def recentattachments(ctx):
     channel_id = 1245824371394613439
     channel = bot.get_channel(channel_id)
     
-    recent_messages = await channel.history(limit=5).flatten()
-    embed = discord.Embed(title="Recent Messages", color=discord.Color.blue())
+    # Get all messages from the last week
+    end_time = discord.utils.utcnow()
+    start_time = end_time - discord.timedelta(weeks=1)
+    recent_messages = await channel.history(limit=None, after=start_time, before=end_time).flatten()
     
+    attachments = []
     for message in recent_messages:
-        embed.add_field(name=f"Message by {message.author}", value="No message content available", inline=False)
         if message.attachments:
-            embed.set_image(url=message.attachments[0].url)
+            for attachment in message.attachments:
+                attachments.append(attachment.url)
     
-    await ctx.send(embed=embed)
+    if not attachments:
+        await ctx.send("No attachments found in the last week.")
+        return
+    
+    embed = discord.Embed(title="Recent Attachments", color=discord.Color.blue())
+    embed.set_image(url=attachments[0])  # Display the first attachment initially
+    
+    if len(attachments) > 1:
+        buttons = [
+            Button(style=ButtonStyle.blue, label="Previous", custom_id="previous"),
+            Button(style=ButtonStyle.blue, label="Next", custom_id="next")
+        ]
+        
+        message = await ctx.send(embed=embed, components=[buttons])
+        
+        while True:
+            button_ctx = await bot.wait_for("button_click", check=lambda b_ctx: b_ctx.message.id == message.id)
+            if button_ctx.custom_id == "previous":
+                current_index = attachments.index(embed.image.url)
+                previous_index = (current_index - 1) % len(attachments)
+                embed.set_image(url=attachments[previous_index])
+                await button_ctx.edit_origin(embed=embed)
+            elif button_ctx.custom_id == "next":
+                current_index = attachments.index(embed.image.url)
+                next_index = (current_index + 1) % len(attachments)
+                embed.set_image(url=attachments[next_index])
+                await button_ctx.edit_origin(embed=embed)
 
 bot.run(os.environ.get('DISCORD_TOKEN'))
