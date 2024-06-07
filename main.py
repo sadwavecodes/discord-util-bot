@@ -3,6 +3,8 @@ from discord.ext import commands, tasks
 import os
 import uuid
 import asyncio
+import random
+from datetime import datetime
 
 # Load the Discord bot token from environment variables
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
@@ -20,7 +22,7 @@ async def on_ready():
     print(f'Logged in as {bot.user}')
 
 @bot.command(name='reminder', help='Set a reminder. Usage: !reminder <time> <message>\nTime examples: 1s, 1m, 1h, 1d')
-async def reminder(ctx, time: str, *, reminder: str):
+async def reminder(ctx, time: str, *, reminder_text: str):
     user_id = ctx.author.id
 
     # Parse time argument
@@ -47,13 +49,16 @@ async def reminder(ctx, time: str, *, reminder: str):
     await ctx.send(f'{ctx.author.mention}, your reminder has been set. Reminder ID: `{reminder_id}`')
 
     # Schedule the reminder
-    reminder_info = {"user_id": user_id, "reminder": reminder}
+    reminder_info = {"user_id": user_id, "reminder_text": reminder_text}
     reminders[reminder_id] = reminder_info
     await asyncio.sleep(duration)
     if reminder_id in reminders:
         user = await bot.fetch_user(reminder_info["user_id"])
         if user:
-            await user.send(f'{user.mention}, here is your reminder: {reminder_info["reminder"]}\nReminder ID: `{reminder_id}`')
+            embed = discord.Embed(title="Reminder", description=reminder_info["reminder_text"], color=random_color())
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=f"Set at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            await user.send(embed=embed)
         del reminders[reminder_id]
 
 @bot.command(name='cancelreminder', help='Cancel a reminder by ID. Usage: !cancelreminder <reminder_id>')
@@ -63,6 +68,9 @@ async def cancelreminder(ctx, reminder_id: str):
         await ctx.send(f'{ctx.author.mention}, your reminder with ID `{reminder_id}` has been canceled.')
     else:
         await ctx.send(f'{ctx.author.mention}, no reminder found with ID `{reminder_id}`.')
+
+def random_color():
+    return discord.Color(random.randint(0, 0xFFFFFF))
 
 # Run the bot
 bot.run(DISCORD_TOKEN)
