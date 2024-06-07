@@ -1,58 +1,37 @@
+from discord.ext import commands
 import discord
-from gd import GDClient
+import gd
 import os
 
-# Main command function
-async def userinfo_command(channel, user_input):
+bot = commands.Bot(command_prefix="> ")
+client = gd.Client()
+
+@bot.event
+async def on_ready() -> None:
+    bot.client = client
+    activity = discord.Activity(type=discord.ActivityType.playing, name="Geometry Dash")
+    await bot.change_presence(activity=activity, status=discord.Status.online)
+
+@bot.command(name="daily")
+async def get_daily(ctx: commands.Context) -> None:
     try:
-        # Initialize GDClient
-        gd_client = GDClient()
+        daily = await bot.client.get_daily()
 
-        # Fetch user info based on user input
-        user_info = gd_client.get_user(user_input)
-
-        # Create an embed with user info
-        embed = discord.Embed(
-            title=f'User Info for {user_input}',
-            color=0x0099ff,
+    except gd.MissingAccess:
+        return await ctx.send(
+            embed=discord.Embed(
+                description="Failed to get a daily level.",
+                title="Error Occurred", color=0xde3e35)
         )
-        embed.add_field(name='Username', value=user_info.name, inline=True)
-        embed.add_field(name='Stars', value=user_info.stars, inline=True)
-        embed.add_field(name='Diamonds', value=user_info.diamonds, inline=True)
-        embed.add_field(name='Coins', value=user_info.coins, inline=True)
-        embed.add_field(name='User Coins', value=user_info.user_coins, inline=True)
-        embed.add_field(name='Demons', value=user_info.demons, inline=True)
-        embed.set_footer(text='Geometry Dash User Info', icon_url='https://www.boomlings.com/database/icon.png')
 
-        await channel.send(embed=embed)
-    except Exception as e:
-        print(f"Exception in userinfo_command: {e}")
-        await channel.send('An error occurred while fetching the user info.')
+    embed = (
+        discord.Embed(color=0x7289da).set_author(name="Current Daily")
+        .add_field(name="Name", value=daily.name)
+        .add_field(name="Difficulty", value=f"{daily.stars} ({daily.difficulty.title})")
+        .add_field(name="ID", value=f"{daily.id}")
+        .set_footer(text=f"Creator: {daily.creator.name}")
+    )
 
-TOKEN = os.getenv('DISCORD_TOKEN')
+    await ctx.send(embed=embed)
 
-# Define intents
-intents = discord.Intents.default()
-intents.message_content = True
-
-client = discord.Client(intents=intents)
-
-@client.event
-async def on_ready():
-    print(f'We have logged in as {client.user}')
-
-@client.event
-async def on_message(message):
-    if message.content.startswith('!userinfo'):
-        # Split the message to get the command and the user input
-        command, user_input = message.content.split(' ', 1)
-
-        # Check if user input is provided
-        if not user_input:
-            await message.channel.send('Please provide a username or user ID.')
-            return
-
-        # Fetch user info based on user input
-        await userinfo_command(message.channel, user_input)
-
-client.run(TOKEN)
+bot.run(os.getenv("DISCORD_TOKEN"))
