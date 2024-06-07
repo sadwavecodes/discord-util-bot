@@ -19,8 +19,8 @@ reminders = {}
 async def on_ready():
     print(f'Logged in as {bot.user}')
 
-@bot.command(name='remind', help='Set a reminder. Usage: !remind <time> <message>\nTime examples: 1s, 1m, 1h, 1d')
-async def remind(ctx, time: str, *, reminder: str):
+@bot.command(name='reminder', help='Set a reminder. Usage: !reminder <time> <message>\nTime examples: 1s, 1m, 1h, 1d')
+async def reminder(ctx, time: str, *, reminder: str):
     user_id = ctx.author.id
     reminder_id = str(uuid.uuid4())
 
@@ -51,18 +51,18 @@ async def remind(ctx, time: str, *, reminder: str):
     await ctx.send(f'{ctx.author.mention}, your reminder has been set. Reminder ID: `{reminder_id}`')
 
     # Schedule the reminder
+    reminders[reminder_id] = {"user_id": user_id, "reminder": reminder}
     await asyncio.sleep(duration)
-    user = bot.get_user(user_id)
-    if user:
-        await user.send(f'{user.mention}, here is your reminder: {reminder}\nReminder ID: `{reminder_id}`')
+    if reminder_id in reminders:
+        user = bot.get_user(reminders[reminder_id]["user_id"])
+        if user:
+            await user.send(f'{user.mention}, here is your reminder: {reminders[reminder_id]["reminder"]}\nReminder ID: `{reminder_id}`')
+        del reminders[reminder_id]
 
 @bot.command(name='cancelreminder', help='Cancel a reminder by ID. Usage: !cancelreminder <reminder_id>')
 async def cancelreminder(ctx, reminder_id: str):
-    user_id = ctx.author.id
-    if user_id in reminders and reminder_id in reminders[user_id]:
-        del reminders[user_id][reminder_id]
-        if not reminders[user_id]:  # Clean up if no reminders left
-            del reminders[user_id]
+    if reminder_id in reminders:
+        del reminders[reminder_id]
         await ctx.send(f'{ctx.author.mention}, your reminder with ID `{reminder_id}` has been canceled.')
     else:
         await ctx.send(f'{ctx.author.mention}, no reminder found with ID `{reminder_id}`.')
