@@ -48,13 +48,17 @@ async def reminder(ctx, time: str, *, reminder: str):
         await ctx.send(f'{ctx.author.mention}, please choose a time between 1 second and 7 days.')
         return
     
+    if reminder_id in reminders:
+        await ctx.send(f'{ctx.author.mention}, a reminder with the same ID is already set.')
+        return
+
     await ctx.send(f'{ctx.author.mention}, your reminder has been set. Reminder ID: `{reminder_id}`')
 
     # Schedule the reminder
     reminders[reminder_id] = {"user_id": user_id, "reminder": reminder}
     await asyncio.sleep(duration)
     if reminder_id in reminders:
-        user = bot.get_user(reminders[reminder_id]["user_id"])
+        user = await bot.fetch_user(reminders[reminder_id]["user_id"])
         if user:
             await user.send(f'{user.mention}, here is your reminder: {reminders[reminder_id]["reminder"]}\nReminder ID: `{reminder_id}`')
         del reminders[reminder_id]
