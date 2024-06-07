@@ -1,15 +1,17 @@
-from discord.ext import commands
+from discord.ext import commands  # import commands extension
 import discord
-import gd
 import os
+import gd
 
 bot = commands.Bot(command_prefix="> ")
 client = gd.Client()
 
 @bot.event
 async def on_ready() -> None:
-    bot.client = client
+    bot.client = client  # attach gd.Client to commands.Bot
+
     activity = discord.Activity(type=discord.ActivityType.playing, name="Geometry Dash")
+
     await bot.change_presence(activity=activity, status=discord.Status.online)
 
 @bot.command(name="daily")
@@ -18,10 +20,11 @@ async def get_daily(ctx: commands.Context) -> None:
         daily = await bot.client.get_daily()
 
     except gd.MissingAccess:
+        # couldn"t fetch a daily level
         return await ctx.send(
             embed=discord.Embed(
                 description="Failed to get a daily level.",
-                title="Error Occurred", color=0xde3e35)
+                title="Error Occured", color=0xde3e35)
         )
 
     embed = (
