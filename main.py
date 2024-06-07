@@ -1,16 +1,19 @@
 import discord
-from gd import GD
+from gd import GDClient
 import os
 
 # Main command function
-async def userinfo_command(ctx, username):
+async def userinfo_command(channel, user_input):
     try:
-        # Get user info using gdpy
-        user_info = GD().get_user(username)
+        # Initialize GDClient
+        gd_client = GDClient()
+
+        # Fetch user info based on user input
+        user_info = gd_client.get_user(user_input)
 
         # Create an embed with user info
         embed = discord.Embed(
-            title=f'User Info for {username}',
+            title=f'User Info for {user_input}',
             color=0x0099ff,
         )
         embed.add_field(name='Username', value=user_info.name, inline=True)
@@ -21,10 +24,10 @@ async def userinfo_command(ctx, username):
         embed.add_field(name='Demons', value=user_info.demons, inline=True)
         embed.set_footer(text='Geometry Dash User Info', icon_url='https://www.boomlings.com/database/icon.png')
 
-        await ctx.send(embed=embed)
+        await channel.send(embed=embed)
     except Exception as e:
         print(f"Exception in userinfo_command: {e}")
-        await ctx.send('An error occurred while fetching the user info.')
+        await channel.send('An error occurred while fetching the user info.')
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 
@@ -41,7 +44,15 @@ async def on_ready():
 @client.event
 async def on_message(message):
     if message.content.startswith('!userinfo'):
-        username = message.content.split(' ', 1)[1]
-        await userinfo_command(message.channel, username)
+        # Split the message to get the command and the user input
+        command, user_input = message.content.split(' ', 1)
+
+        # Check if user input is provided
+        if not user_input:
+            await message.channel.send('Please provide a username or user ID.')
+            return
+
+        # Fetch user info based on user input
+        await userinfo_command(message.channel, user_input)
 
 client.run(TOKEN)
