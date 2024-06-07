@@ -29,7 +29,11 @@ async def remind(ctx, *, reminder: str):
         reminders[user_id] = {}
 
     reminders[user_id][reminder_id] = reminder
-    await ctx.send(f'{ctx.author.mention}, your reminder has been set. Use ID {reminder_id} to cancel it.')
+    reminder_message = (
+        f'{ctx.author.mention}, your reminder has been set.\n'
+        f'Reminder ID: `{reminder_id}` (Click to copy)'
+    )
+    await ctx.send(reminder_message)
 
 @bot.command(name='cancelreminder', help='Cancel a reminder by ID. Usage: !cancelreminder <reminder_id>')
 async def cancelreminder(ctx, reminder_id: str):
@@ -38,9 +42,9 @@ async def cancelreminder(ctx, reminder_id: str):
         del reminders[user_id][reminder_id]
         if not reminders[user_id]:  # Clean up if no reminders left
             del reminders[user_id]
-        await ctx.send(f'{ctx.author.mention}, your reminder with ID {reminder_id} has been canceled.')
+        await ctx.send(f'{ctx.author.mention}, your reminder with ID `{reminder_id}` has been canceled.')
     else:
-        await ctx.send(f'{ctx.author.mention}, no reminder found with ID {reminder_id}.')
+        await ctx.send(f'{ctx.author.mention}, no reminder found with ID `{reminder_id}`.')
 
 @tasks.loop(hours=24)
 async def reminder_loop():
@@ -48,7 +52,8 @@ async def reminder_loop():
         for reminder_id, reminder in user_reminders.items():
             user = bot.get_user(user_id)
             if user:
-                await user.send(f'{user.mention}, here is your daily reminder: {reminder} (ID: {reminder_id})')
+                reminder_message = f'Here is your daily reminder: {reminder}\nReminder ID: `{reminder_id}`'
+                await user.send(f'{user.mention}, {reminder_message}')
 
 @reminder_loop.before_loop
 async def before_reminder_loop():
