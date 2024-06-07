@@ -1,5 +1,6 @@
 import discord
 import aiohttp
+import os
 
 # Function to fetch data from a URL
 async def fetch_data(url):
@@ -57,7 +58,7 @@ async def userinfo_command(ctx, username):
         await ctx.send('An error occurred while fetching the user info.')
 
 # Replace '<your_bot_token>' with your actual bot token
-TOKEN = 'MTIzOTkwMzM1NTQ0NzU0MTgzMg.GdQTpo.B4WuJD0yYfF8Tf1R8tTM7Kt24bUOg0GEwD8tds'
+TOKEN = os.getenv('DISCORD_TOKEN')
 client = discord.Client()
 
 @client.event
