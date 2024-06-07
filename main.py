@@ -49,13 +49,12 @@ async def reminder(ctx, time: str, *, reminder_text: str):
     await ctx.send(f'{ctx.author.mention}, your reminder has been set. Reminder ID: `{reminder_id}`')
 
     # Schedule the reminder
-    reminder_info = {"user_id": user_id, "reminder_text": reminder_text}
-    reminders[reminder_id] = reminder_info
+    reminders[reminder_id] = {"user_id": user_id, "reminder_text": reminder_text, "time": datetime.now() + timedelta(seconds=duration)}
     await asyncio.sleep(duration)
     if reminder_id in reminders:
-        user = await bot.fetch_user(reminder_info["user_id"])
+        user = await bot.fetch_user(reminders[reminder_id]["user_id"])
         if user:
-            embed = discord.Embed(title="Reminder", description=reminder_info["reminder_text"], color=random_color())
+            embed = discord.Embed(title="Reminder", description=reminder_text, color=random_color())
             embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
             embed.set_footer(text=f"Set at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             await user.send(embed=embed)
