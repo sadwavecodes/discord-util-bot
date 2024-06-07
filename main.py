@@ -6,6 +6,8 @@ from discord_slash.utils import manage_components
 from discord_slash.model import ButtonStyle
 from discord_components import DiscordComponents, Button, ButtonStyle
 
+TOKEN = os.getenv('DISCORD_TOKEN')
+
 bot = commands.Bot(command_prefix='!')
 slash = SlashCommand(bot)
 DiscordComponents(bot)
@@ -59,4 +61,5 @@ async def channelset(ctx: SlashContext):
 async def on_select_option(interaction):
     await interaction.respond(type=7)
 
-bot.run(os.getenv('DISCORD_TOKEN'))
+if __name__ == "__main__":
+    bot.run(TOKEN)
