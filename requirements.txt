@@ -1,2 +1,2 @@
 discord.py==1.7.3
-gd==1.1.0
+gd.py
