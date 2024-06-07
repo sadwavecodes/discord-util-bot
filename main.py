@@ -18,7 +18,7 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 reminders = {}
 
 # Create a SlashCommand instance
-slash = SlashCommand(bot, sync_commands=True)
+slash = SlashCommand(bot)
 
 @bot.event
 async def on_ready():
