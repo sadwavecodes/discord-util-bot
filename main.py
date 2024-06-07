@@ -22,19 +22,10 @@ async def on_ready():
 @bot.command(name='reminder', help='Set a reminder. Usage: !reminder <time> <message>\nTime examples: 1s, 1m, 1h, 1d')
 async def reminder(ctx, time: str, *, reminder: str):
     user_id = ctx.author.id
-    reminder_id = str(uuid.uuid4())
 
     # Parse time argument
-    multiplier = 1
-    if time[-1] == 's':
-        multiplier = 1
-    elif time[-1] == 'm':
-        multiplier = 60
-    elif time[-1] == 'h':
-        multiplier = 3600
-    elif time[-1] == 'd':
-        multiplier = 86400
-    else:
+    multiplier = {'s': 1, 'm': 60, 'h': 3600, 'd': 86400}.get(time[-1])
+    if multiplier is None:
         await ctx.send(f'{ctx.author.mention}, invalid time format. Please use s (seconds), m (minutes), h (hours), or d (days).')
         return
     
@@ -48,6 +39,7 @@ async def reminder(ctx, time: str, *, reminder: str):
         await ctx.send(f'{ctx.author.mention}, please choose a time between 1 second and 7 days.')
         return
     
+    reminder_id = str(uuid.uuid4())
     if reminder_id in reminders:
         await ctx.send(f'{ctx.author.mention}, a reminder with the same ID is already set.')
         return
@@ -55,12 +47,13 @@ async def reminder(ctx, time: str, *, reminder: str):
     await ctx.send(f'{ctx.author.mention}, your reminder has been set. Reminder ID: `{reminder_id}`')
 
     # Schedule the reminder
-    reminders[reminder_id] = {"user_id": user_id, "reminder": reminder}
+    reminder_info = {"user_id": user_id, "reminder": reminder}
+    reminders[reminder_id] = reminder_info
     await asyncio.sleep(duration)
     if reminder_id in reminders:
-        user = await bot.fetch_user(reminders[reminder_id]["user_id"])
+        user = await bot.fetch_user(reminder_info["user_id"])
         if user:
-            await user.send(f'{user.mention}, here is your reminder: {reminders[reminder_id]["reminder"]}\nReminder ID: `{reminder_id}`')
+            await user.send(f'{user.mention}, here is your reminder: {reminder_info["reminder"]}\nReminder ID: `{reminder_id}`')
         del reminders[reminder_id]
 
 @bot.command(name='cancelreminder', help='Cancel a reminder by ID. Usage: !cancelreminder <reminder_id>')
@@ -70,11 +63,6 @@ async def cancelreminder(ctx, reminder_id: str):
         await ctx.send(f'{ctx.author.mention}, your reminder with ID `{reminder_id}` has been canceled.')
     else:
         await ctx.send(f'{ctx.author.mention}, no reminder found with ID `{reminder_id}`.')
-
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        pass  # Ignore unknown commands
 
 # Run the bot
 bot.run(DISCORD_TOKEN)
