@@ -1,3 +1,4 @@
 discord.py
 discord-py-interactions
 discord-components
+discord-py-slash-command==1.0.7
