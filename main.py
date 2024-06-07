@@ -57,9 +57,13 @@ async def userinfo_command(ctx, username):
         print(e)
         await ctx.send('An error occurred while fetching the user info.')
 
-# Replace '<your_bot_token>' with your actual bot token
 TOKEN = os.getenv('DISCORD_TOKEN')
-client = discord.Client()
+
+# Define intents
+intents = discord.Intents.default()
+intents.message_content = True
+
+client = discord.Client(intents=intents)
 
 @client.event
 async def on_ready():
