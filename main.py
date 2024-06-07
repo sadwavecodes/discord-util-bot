@@ -71,5 +71,10 @@ async def cancelreminder(ctx, reminder_id: str):
     else:
         await ctx.send(f'{ctx.author.mention}, no reminder found with ID `{reminder_id}`.')
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        pass  # Ignore unknown commands
+
 # Run the bot
 bot.run(DISCORD_TOKEN)
