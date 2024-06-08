@@ -1,5 +1,5 @@
 discord.py==2.3.2
 discord-py-interactions
 discord-components
-discord-py-slash-command==1.0.7
+discord-py-slash-command
 python-dotenv
