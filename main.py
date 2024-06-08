@@ -44,26 +44,26 @@ async def reminder(ctx, time: str, *, reminder_text: str):
     reminder_id = reminder_counter
     reminder_counter += 1
 
-    await ctx.send(f'{ctx.author.mention}, your reminder has been set. Reminder ID: [**{reminder_id}**](https://dummy-url/{reminder_id})')
+    reminders[reminder_id] = {"user_id": user_id, "reminder_text": reminder_text}
+
+    await ctx.send(f'{ctx.author.mention}, your reminder has been set. Reminder ID: [**{reminder_id}**]({reminder_id})')
 
     # Schedule the reminder
-    reminder_time = datetime.now() + timedelta(seconds=duration)
-    reminders[reminder_id] = {"user_id": user_id, "reminder_text": reminder_text, "time": reminder_time}
     await asyncio.sleep(duration)
     if reminder_id in reminders:
-        user = await bot.fetch_user(reminders[reminder_id]["user_id"])
+        reminder_info = reminders.pop(reminder_id)
+        user = await bot.fetch_user(reminder_info["user_id"])
         if user:
-            await user.send(f'**Reminder:** *{reminder_text}*\nSet at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
-            print(f'Reminder sent to {user} at {reminder_time}.')
-        del reminders[reminder_id]
+            await user.send(f'**Reminder:** *{reminder_info["reminder_text"]}*\nSet at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+            print(f'Reminder sent to {user} at {datetime.now()}.')
 
 @bot.command(name='cancelreminder', help='Cancel a reminder by ID. Usage: !cancelreminder <reminder_id>')
 async def cancelreminder(ctx, reminder_id: int):
     if reminder_id in reminders:
-        del reminders[reminder_id]
-        await ctx.send(f'{ctx.author.mention}, your reminder with ID [**{reminder_id}**](https://dummy-url/{reminder_id}) has been canceled.')
+        reminders.pop(reminder_id)
+        await ctx.send(f'{ctx.author.mention}, your reminder with ID [**{reminder_id}**]({reminder_id}) has been canceled.')
     else:
-        await ctx.send(f'{ctx.author.mention}, no reminder found with ID [**{reminder_id}**](https://dummy-url/{reminder_id}).')
+        await ctx.send(f'{ctx.author.mention}, no reminder found with ID [**{reminder_id}**]({reminder_id}).')
 
 # Run the bot
 bot.run(DISCORD_TOKEN)
