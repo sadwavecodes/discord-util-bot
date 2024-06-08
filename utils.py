@@ -10,5 +10,5 @@ def setup_bot(bot):
     async def cancelreminder_command(ctx, reminder_id: int):
         await cancelreminder(ctx, reminder_id)
 
-    # Set up help command
+    # Set up custom help command
     setup_help(bot)
