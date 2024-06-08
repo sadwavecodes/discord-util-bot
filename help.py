@@ -12,5 +12,6 @@ class HelpCommand(commands.Cog):
         embed.add_field(name="!cancelreminder <reminder_id>", value="Cancel a reminder by ID.", inline=False)
         await ctx.send(embed=embed)
 
-def setup_help(bot):
-    bot.add_cog(HelpCommand(bot))
+async def setup_help(bot):
+    help_command = HelpCommand()
+    bot.add_command(help_command)
