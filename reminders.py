@@ -4,7 +4,7 @@ import asyncio
 
 # Dictionary to store reminders
 reminders = {}
-reminder_counter = 0
+reminder_counter = 1
 
 async def reminder(ctx, time: str, *, reminder_text: str):
     global reminder_counter
