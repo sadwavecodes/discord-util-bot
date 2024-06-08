@@ -11,7 +11,7 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Import commands from the other modules
-from reminders import reminder, cancelreminder, setup_reminders
+from reminders import setup_reminders
 from help import setup_help
 
 # Register commands
