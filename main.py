@@ -46,9 +46,12 @@ async def reminder(ctx, time: str, *, reminder_text: str):
 
     reminders[reminder_id] = {"user_id": user_id, "reminder_text": reminder_text}
 
-    await ctx.send(f'{ctx.author.mention}, your reminder has been set. Reminder ID: [**{reminder_id}**]({reminder_id})')
+    await ctx.send(f'{ctx.author.mention}, your reminder has been set. Reminder ID: **{reminder_id}**')
 
     # Schedule the reminder
+    await asyncio.create_task(schedule_reminder(reminder_id, duration))
+
+async def schedule_reminder(reminder_id, duration):
     await asyncio.sleep(duration)
     if reminder_id in reminders:
         reminder_info = reminders.pop(reminder_id)
@@ -61,9 +64,9 @@ async def reminder(ctx, time: str, *, reminder_text: str):
 async def cancelreminder(ctx, reminder_id: int):
     if reminder_id in reminders:
         reminders.pop(reminder_id)
-        await ctx.send(f'{ctx.author.mention}, your reminder with ID [**{reminder_id}**]({reminder_id}) has been canceled.')
+        await ctx.send(f'{ctx.author.mention}, your reminder with ID **{reminder_id}** has been canceled.')
     else:
-        await ctx.send(f'{ctx.author.mention}, no reminder found with ID [**{reminder_id}**]({reminder_id}).')
+        await ctx.send(f'{ctx.author.mention}, no reminder found with ID **{reminder_id}**.')
 
 # Run the bot
 bot.run(DISCORD_TOKEN)
