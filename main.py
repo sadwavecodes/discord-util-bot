@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from discord_slash import SlashCommand
 from utils import setup_bot
-from help import setup_help
+from help import help
 
 # Load the Discord bot token from environment variables
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
@@ -16,7 +16,7 @@ slash = SlashCommand(bot)
 
 # Setup commands
 setup_bot(bot)
-setup_help(bot)
+help(bot)
 
 # Run the bot
 bot.run(DISCORD_TOKEN)
