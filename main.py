@@ -17,7 +17,7 @@ from reminders import reminder, cancelreminder
 from utils import setup_bot
 
 @bot.command(description="Help for commands") # this decorator makes a slash command
-async def bothelp(ctx): # a slash command will be created with the name "ping"
+async def help(ctx):
         embed = discord.Embed(title="Help", description="List of available commands:", color=discord.Color.blue())
         embed.add_field(name="!reminder <time> <message>", value="Set a reminder. Time examples: 1s, 1m, 1h, 1d", inline=False)
         embed.add_field(name="!cancelreminder <reminder_id>", value="Cancel a reminder by ID.", inline=False)
