@@ -1,8 +1,6 @@
 import discord
-from discord.ext import commands
-import asyncio
 from datetime import datetime, timedelta
-from utils import random_color
+import asyncio
 
 # Dictionary to store reminders
 reminders = {}
@@ -50,7 +48,3 @@ async def cancelreminder(ctx, reminder_id: int):
         await ctx.send(f'{ctx.author.mention}, your reminder with ID `{reminder_id}` has been canceled.')
     else:
         await ctx.send(f'{ctx.author.mention}, no reminder found with ID `{reminder_id}`.')
-
-def setup_reminders(bot):
-    bot.add_command(commands.Command(reminder, name='reminder', help='Set a reminder. Usage: !reminder <time> <message>\nTime examples: 1s, 1m, 1h, 1d'))
-    bot.add_command(commands.Command(cancelreminder, name='cancelreminder', help='Cancel a reminder by ID. Usage: !cancelreminder <reminder_id>'))
