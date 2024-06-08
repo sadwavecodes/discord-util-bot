@@ -1,4 +1,4 @@
-# REMINDER DISCORD BOT
+# Discord Utility Bot with Many Different Features
 
 **Pretty Simple**
 
