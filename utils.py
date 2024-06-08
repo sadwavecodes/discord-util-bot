@@ -1,4 +1,5 @@
 from reminders import reminder, cancelreminder
+from guess import guess_command
 
 def setup_bot(bot):
     # Commands setup
@@ -9,3 +10,7 @@ def setup_bot(bot):
     @bot.command(name='cancelreminder')
     async def cancelreminder_command(ctx, reminder_id: int):
         await cancelreminder(ctx, reminder_id)
+
+    @bot.command(name='guess')
+    async def guess(ctx, number: int):
+        await guess_command(ctx, number)
