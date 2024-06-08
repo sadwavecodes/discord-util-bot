@@ -16,20 +16,13 @@ from reminders import reminder, cancelreminder
 # Load utilities
 from utils import setup_bot
 
-# Load slash commands
-from discord_slash import SlashCommand
-from discord_slash.utils.manage_commands import create_option
+@bot.command(description="Help for commands") # this decorator makes a slash command
+async def help(ctx): # a slash command will be created with the name "ping"
+        embed = discord.Embed(title="Help", description="List of available commands:", color=discord.Color.blue())
+        embed.add_field(name="!reminder <time> <message>", value="Set a reminder. Time examples: 1s, 1m, 1h, 1d", inline=False)
+        embed.add_field(name="!cancelreminder <reminder_id>", value="Cancel a reminder by ID.", inline=False)
+        await ctx.send(embed=embed)
 
-# Initialize slash commands
-slash = SlashCommand(bot, sync_commands=True)
-
-# Register the ping slash command
-@slash.slash(
-    name="ping",
-    description="Sends the bot's latency.",
-)
-async def ping(ctx):
-    await ctx.send(f"Pong! Latency is {int(bot.latency * 1000)}ms")
 
 # Run the bot
 setup_bot(bot)
