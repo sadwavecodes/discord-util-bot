@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
-import uuid
 import asyncio
 from datetime import datetime, timedelta
+from utils import random_color
 
 # Dictionary to store reminders
 reminders = {}
@@ -38,7 +38,7 @@ async def reminder(ctx, time: str, *, reminder_text: str):
     reminders[reminder_id] = {"user_id": user_id, "reminder_text": reminder_text, "time": reminder_time}
     await asyncio.sleep(duration)
     if reminder_id in reminders:
-        user = await bot.fetch_user(reminders[reminder_id]["user_id"])
+        user = await ctx.bot.fetch_user(reminders[reminder_id]["user_id"])
         if user:
             await user.send(f'**Reminder:** *{reminder_text}*\nSet at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
             print(f'Reminder sent to {user} at {reminder_time}.')
