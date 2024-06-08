@@ -1,5 +1,5 @@
-from discord.ext import commands
 from reminders import reminder, cancelreminder
+from help import setup_help
 
 def setup_bot(bot):
     @bot.command(name='reminder', help='Set a reminder. Usage: !reminder <time> <message>\nTime examples: 1s, 1m, 1h, 1d')
@@ -9,3 +9,6 @@ def setup_bot(bot):
     @bot.command(name='cancelreminder', help='Cancel a reminder by ID. Usage: !cancelreminder <reminder_id>')
     async def cancelreminder_command(ctx, reminder_id: int):
         await cancelreminder(ctx, reminder_id)
+
+    # Set up help command
+    setup_help(bot)
